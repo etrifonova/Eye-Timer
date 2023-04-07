@@ -1,7 +1,7 @@
 function startTimer() {
     var interval = 20 * 60; // interval in seconds between alarms
     var timeLeft = interval;
-    var alarmSound = new Audio('./alarm.wav'); // Replace with path to your sound file
+    var alarmSound = new Audio('./alarm.mp3'); // Replace with path to your sound file
   
     function countdown() {
       var minutes = Math.floor(timeLeft / 60);
@@ -11,9 +11,9 @@ function startTimer() {
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
         alarmSound.play(); // Play the alarm sound
-        alert("Time to rest your eyes!");
         timeLeft = interval;
         countdownDisplay.innerHTML = "";
+        countdown();
       }
       timeLeft--;
     }
