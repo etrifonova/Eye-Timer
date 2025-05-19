@@ -7,12 +7,6 @@ let worker;
 const startButton = document.querySelector("#start-button");
 console.log(startButton)
 
-if (startButton) {
-  startButton.addEventListener("click", startTimer);
-} else {
-  console.error("Start button not found - check your HTML");
-}
-
 function startTimer() {
   if (worker) worker.terminate(); // Stop any existing worker
   
@@ -46,4 +40,10 @@ function updateDisplay() {
   const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
   const seconds = (timer % 60).toString().padStart(2, '0');
   display.textContent = `${minutes}:${seconds}`;
+}
+
+if (startButton) {
+  startButton.addEventListener("click", startTimer);
+} else {
+  console.error("Start button not found - check your HTML");
 }
