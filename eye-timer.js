@@ -1,53 +1,43 @@
-// const alarmSound = new Audio("./alarm.mp3"); // Replace with path to your sound file
-// const display = document.querySelector("#countdown");
-// // const fiveMinutes = 60 * 0.1;
-// let timer = 1201;
-// display.textContent = "20:00";
+const alarmSound = new Audio("./alarm.mp3");
+const display = document.querySelector("#countdown");
+let timer = 1200; // 20 minutes in seconds (initial value)
+let isBreakTime = false;
+let worker;
 
-// function startTimer() {
-
-//   if (timer > 0) {
+function startTimer() {
+  if (worker) worker.terminate(); // Stop any existing worker
   
-//     timer--;
-//     let minutes = parseInt(timer / 60, 10);
-//     let seconds = parseInt(timer % 60, 10);
-//     minutes = minutes < 10 ? "0" + minutes : minutes;
-//     seconds = seconds < 10 ? "0" + seconds : seconds;
-//     let timeLeft = minutes + ":" + seconds;
+  worker = new Worker('timer-worker.js');
   
-//     display.textContent = timeLeft;
-//     console.log(timeLeft)
-//     setTimeout(startTimer, 1000);
-
-//   }
-//     else if (timer == 0) {
-//       alarmSound.play();
-//       console.log("bro");
-//       timer = 1201;
-//       setTimeout(startTimer, 20000);
-//     }
-// }
-
-// Register a service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(() => {
-    console.log('Service Worker Registered');
-  });
+  worker.onmessage = function(e) {
+    if (e.data === 'tick') {
+      timer--;
+      updateDisplay();
+      
+      if (timer === 0) {
+        alarmSound.play();
+        
+        if (!isBreakTime) {
+          // Start 20-second break
+          isBreakTime = true;
+          timer = 20;
+        } else {
+          // Break is over, restart 20-minute timer
+          isBreakTime = false;
+          timer = 1200;
+        }
+      }
+    }
+  };
+  
+  worker.postMessage('start');
 }
 
-// In sw.js:
-self.addEventListener('message', (event) => {
-  if (event.data.command === 'startTimer') {
-    let remaining = event.data.duration;
-    const timer = setInterval(() => {
-      remaining--;
-      if (remaining <= 0) {
-        clearInterval(timer);
-        self.registration.showNotification("Time's up!", {
-          body: 'Your 20 minutes are over!',
-          vibrate: [200, 100, 200]
-        });
-      }
-    }, 1000);
-  }
-});
+function updateDisplay() {
+  const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
+  const seconds = (timer % 60).toString().padStart(2, '0');
+  display.textContent = `${minutes}:${seconds}`;
+}
+
+// Start the timer when the button is clicked
+document.querySelector("#start-button").addEventListener("click", startTimer);
