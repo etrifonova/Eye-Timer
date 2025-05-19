@@ -4,6 +4,14 @@ let timer = 1200; // 20 minutes in seconds (initial value)
 let isBreakTime = false;
 let worker;
 
+const startButton = document.querySelector("#start-button");
+
+if (startButton) {
+  startButton.addEventListener("click", startTimer);
+} else {
+  console.error("Start button not found - check your HTML");
+}
+
 function startTimer() {
   if (worker) worker.terminate(); // Stop any existing worker
   
@@ -38,6 +46,3 @@ function updateDisplay() {
   const seconds = (timer % 60).toString().padStart(2, '0');
   display.textContent = `${minutes}:${seconds}`;
 }
-
-// Start the timer when the button is clicked
-document.querySelector("#start-button").addEventListener("click", startTimer);
