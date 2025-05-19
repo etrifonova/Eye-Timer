@@ -5,7 +5,6 @@ let isBreakTime = false;
 let worker;
 
 const startButton = document.querySelector("#start-button");
-console.log(startButton)
 
 function startTimer() {
   if (worker) worker.terminate(); // Stop any existing worker
