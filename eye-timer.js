@@ -28,44 +28,26 @@
 //     }
 // }
 
-// In your main script
-const alarmSound = new Audio("./alarm.mp3");
-const display = document.querySelector("#countdown");
-let timer = 1200; // 20 minutes in seconds
-let worker;
+// Register a service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(() => {
+    console.log('Service Worker Registered');
+  });
+}
 
-function startTimer() {
-  // Create a web worker
-  worker = new Worker('timer-worker.js');
-  
-  worker.onmessage = function(e) {
-    if (e.data === 'tick') {
-      timer--;
-      updateDisplay();
-      
-      if (timer === 0) {
-        alarmSound.play();
-        timer = 20; // 20 seconds break
+// In sw.js:
+self.addEventListener('message', (event) => {
+  if (event.data.command === 'startTimer') {
+    let remaining = event.data.duration;
+    const timer = setInterval(() => {
+      remaining--;
+      if (remaining <= 0) {
+        clearInterval(timer);
+        self.registration.showNotification("Time's up!", {
+          body: 'Your 20 minutes are over!',
+          vibrate: [200, 100, 200]
+        });
       }
-    }
-  };
-  
-  worker.postMessage('start');
-}
-
-function updateDisplay() {
-  const minutes = Math.floor(timer / 60).toString().padStart(2, '0');
-  const seconds = (timer % 60).toString().padStart(2, '0');
-  display.textContent = `${minutes}:${seconds}`;
-}
-
-// timer-worker.js file:
-let interval;
-
-self.onmessage = function(e) {
-  if (e.data === 'start') {
-    interval = setInterval(() => {
-      self.postMessage('tick');
     }, 1000);
   }
-};
+});
