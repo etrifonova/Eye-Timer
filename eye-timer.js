@@ -5,6 +5,7 @@ let isBreakTime = false;
 let worker;
 
 const startButton = document.querySelector("#start-button");
+console.log(startButton)
 
 if (startButton) {
   startButton.addEventListener("click", startTimer);
